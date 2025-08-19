@@ -1,0 +1,6 @@
+.board {
+  width: min(92vmin, 640px);
+  margin: 24px auto;
+  background: #0f172a;
+  border-radius: 12px;
+}
