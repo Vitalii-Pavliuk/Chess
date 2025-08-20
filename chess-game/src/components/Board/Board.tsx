@@ -1,4 +1,4 @@
-import { Chessboard } from "react-chessboard";
+import { Chessboard, type PieceDropHandlerArgs } from "react-chessboard";
 import "./Board.css";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../redux/store";
@@ -9,23 +9,20 @@ const Board = () => {
   const fen = useSelector((state: RootState) => state.chess.fen);
   const dispatch = useDispatch<AppDispatch>();
 
-  const handlePieceDrop = ({
-    sourceSquare,
-    targetSquare,
-  }: {
-    sourceSquare: string;
-    targetSquare: string | null;
-  }) => {
+  const handlePieceDrop = ({ sourceSquare, targetSquare }: PieceDropHandlerArgs): boolean => {
     if (!targetSquare) return false;
-    const game = new Chess(fen === "start" ? undefined : fen);
-    const attempted = game.move({
+
+    const gameCopy = new Chess(fen === "start" ? undefined : fen);
+    const attempted = gameCopy.move({
       from: sourceSquare,
       to: targetSquare,
       promotion: "q",
     });
-    if (attempted === null) return false;
+
+    if (!attempted) return false;
+
     dispatch(
-      movePiece({ from: sourceSquare, to: targetSquare, promotion: "q" }),
+      movePiece({ from: sourceSquare, to: targetSquare, promotion: "q" })
     );
     return true;
   };
@@ -34,11 +31,9 @@ const Board = () => {
     <div className="board">
       <Chessboard
         options={{
-          position:
-            fen === "start"
-              ? "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
-              : fen,
+          position: fen === "start" ? undefined : fen,
           onPieceDrop: handlePieceDrop,
+          boardOrientation: "white",
         }}
       />
     </div>

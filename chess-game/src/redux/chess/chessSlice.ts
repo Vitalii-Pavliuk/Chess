@@ -2,12 +2,10 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { Chess } from "chess.js";
 
 interface ChessState {
-  game: Chess;
   fen: string;
 }
 
 const initialState: ChessState = {
-  game: new Chess(),
   fen: "start",
 };
 
@@ -15,22 +13,19 @@ const chessSlice = createSlice({
   name: "chess",
   initialState,
   reducers: {
-    movePiece: (
-      state,
-      action: PayloadAction<{ from: string; to: string; promotion?: string }>,
-    ) => {
-      const result = state.game.move(action.payload);
-      if (result) {
-        state.fen = state.game.fen();
+    movePiece: (state, action: PayloadAction<{ from: string; to: string; promotion?: string }>) => {
+      const game = new Chess(state.fen === "start" ? undefined : state.fen);
+      const move = game.move(action.payload);
+      if (move) {
+        state.fen = game.fen();
       }
+      console.log(`Moved piece from ${action.payload.from} to ${action.payload.to}`, move);
+    },
+    resetGame: (state) => {
+      state.fen = "start";
     },
     setFen: (state, action: PayloadAction<string>) => {
       state.fen = action.payload;
-      state.game.load(action.payload);
-    },
-    resetGame: (state) => {
-      state.game = new Chess();
-      state.fen = "start";
     },
   },
 });
